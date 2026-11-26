@@ -1,5 +1,8 @@
 'use strict';
 
+if (typeof window.icon !== 'function') { window.icon = function () { return ''; }; }
+if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
+
   var cfg = window.APP_CONFIG || {};
   var app = document.getElementById('app');
 
@@ -390,3 +393,4 @@
     }
   }
 // END OF FILE app_core.js
+
