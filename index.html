@@ -73,6 +73,30 @@ nav button.on{color:var(--accent2);font-weight:700}
 <div id="app"></div>
 <div id="toast"></div>
 <div id="offline" hidden><h2 id="offTitle"></h2><p class="muted" id="offMsg"></p><button class="btn" id="offRetry"></button></div>
+<script>
+(function () {
+  function show(msg) {
+    var b = document.getElementById('diag');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'diag';
+      b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff5a6a;color:#fff;font:13px system-ui,sans-serif;padding:8px 12px;z-index:100;direction:ltr;text-align:left';
+      document.body.appendChild(b);
+    }
+    var line = document.createElement('div');
+    line.textContent = String(msg);
+    b.appendChild(line);
+  }
+  window.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'SCRIPT') { show('Missing file: ' + (t.getAttribute('src') || '')); }
+    else { show('Error: ' + (e.message || 'unknown') + (e.filename ? ' (' + e.filename.split('/').pop() + ')' : '')); }
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    show('Error: ' + ((e.reason && e.reason.message) || e.reason));
+  });
+}());
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="i18n_en.js"></script>
