@@ -51,6 +51,8 @@ I18N.en = {
       'off.title': "You're offline", 'off.msg': 'This app needs an internet connection. Check your Wi-Fi or mobile data and try again.',
       'explore.saved': 'Saved', 'l.delete': 'Delete listing', 'l.deleteAsk': 'Delete this listing? This cannot be undone.', 'l.deleted': 'Listing deleted.',
       'err.LISTING_HAS_ACTIVE_BOOKING': 'You can delete this listing after the current booking is finished.',
+      'l.posted': 'Posted', 'empty.title': 'Oops, no matches were found', 'empty.sub': 'Try different words or clear your filters.',
+      'empty.none': 'No listings yet', 'empty.noneSub': 'Be the first to list a property!', 'empty.clear': 'Clear filters',
       'setup': 'Setup needed: open config.js and paste your Supabase project URL and public key.',
       'err.generic': 'Something went wrong. Please try again.',
       'err.PHOTO_TOO_LARGE': 'A photo is still too large for the server. Try a smaller one.',
