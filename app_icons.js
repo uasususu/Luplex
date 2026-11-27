@@ -38,6 +38,26 @@ var ICON_MAP = [
   ['[data-del]', 'trash'], ['[data-ub]', 'refresh']
 ];
 
+var EMPTY_SVG = '<svg class="empty-art" viewBox="0 0 300 232" aria-hidden="true"><rect x="26" y="52" width="248" height="124" rx="42" fill="#18243d"/><path d="M72 62a14 14 0 0 1 14-14h72l28 28v36M72 62v90a14 14 0 0 0 14 14h40" fill="none" stroke="#ff8a3d" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 30h24M58 12l12 12M76 6v22" fill="none" stroke="#ff8a3d" stroke-width="3" stroke-linecap="round"/><circle cx="152" cy="112" r="50" fill="#111b30" stroke="#ff8a3d" stroke-width="12"/><path d="M190 150l44 44" stroke="#ff8a3d" stroke-width="16" stroke-linecap="round"/><rect x="124" y="98" width="58" height="42" fill="#4fc4a4"/><rect x="153" y="98" width="29" height="42" fill="#8fe8cf"/><rect x="138" y="86" width="22" height="12" fill="#4fc4a4"/><rect x="141" y="89" width="14" height="6" fill="#0a9d83"/><g fill="#0a9d83"><rect x="130" y="106" width="8" height="8"/><rect x="141" y="106" width="8" height="8"/><rect x="159" y="106" width="8" height="8"/><rect x="170" y="106" width="8" height="8"/><rect x="130" y="124" width="8" height="16"/><rect x="168" y="124" width="10" height="16"/></g></svg>';
+
+function postedDate(v) {
+  if (!v) { return ''; }
+  var d = new Date(v);
+  if (isNaN(d.getTime())) { return ''; }
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d).replace(/-/g, '/');
+}
+
+function spinnerHtml() {
+  return '<div class="spin-wrap"><div class="spinner" role="status" aria-label="loading"></div></div>';
+}
+
+function emptyHtml(filtered) {
+  return '<div class="empty">' + EMPTY_SVG +
+    '<h2>' + esc(t(filtered ? 'empty.title' : 'empty.none')) + '</h2>' +
+    '<p class="muted">' + esc(t(filtered ? 'empty.sub' : 'empty.noneSub')) + '</p>' +
+    (filtered ? '<button class="btn" id="clearf">' + esc(t('empty.clear')) + '</button>' : '') + '</div>';
+}
+
 function decorate() {
   ICON_MAP.forEach(function (m) {
     $$(m[0]).forEach(function (el) {
