@@ -2,7 +2,7 @@
 
   /* ---------- Wallet ---------- */
   async function viewWallet() {
-    page('wallet', t('nav.wallet'), '<p class="muted">' + esc(t('loading')) + '</p>');
+    page('wallet', t('nav.wallet'), spinnerHtml());
     var bal = await guard(function () { return rpc('get_wallet'); });
     if (bal === null) { return; }
     var tx = await state.sb.from('wallet_transactions').select('amount_cents,kind,created_at').order('created_at', { ascending: false }).limit(50);
@@ -24,8 +24,8 @@
 
   /* ---------- Profile ---------- */
   async function viewProfile() {
-    page('profile', t('nav.profile'), '<p class="muted">' + esc(t('loading')) + '</p>');
-    var mine = await state.sb.from('listings').select('id,title,city,price_cents,period,status').eq('host_id', state.user.id).neq('status', 'REMOVED').order('created_at', { ascending: false });
+    page('profile', t('nav.profile'), spinnerHtml());
+    var mine = await state.sb.from('listings').select('id,title,city,price_cents,period,status,created_at').eq('host_id', state.user.id).neq('status', 'REMOVED').order('created_at', { ascending: false });
     var blocked = [];
     try { blocked = await rpc('my_blocked_users'); } catch (e) { blocked = []; }
     var strikes = null;
@@ -37,7 +37,7 @@
       (strikes ? '<p class="bad">' + esc(t('p.strikes', { n: strikes })) + '</p>' : '') + '</div>' +
       '<div class="card spread"><span>' + esc(t('p.language')) + '</span><button class="btn small ghost" id="lang">' + (lang === 'ar' ? 'English' : 'العربية') + '</button></div>' +
       '<h2>' + esc(t('p.myListings')) + '</h2>' + (listings.length ? listings.map(function (l) {
-        return '<div class="card click" data-ml="' + esc(l.id) + '"><div class="spread"><b>' + esc(l.title) + '</b><span class="badge ' + (l.status === 'AVAILABLE' ? '' : 'off') + '">' + esc(l.status) + '</span></div><div class="muted">' + esc(cityLabel(l.city)) + ' · ' + esc(money(l.price_cents)) + ' / ' + esc(t('per.' + l.period)) + '</div><div class="row" style="margin-top:8px"><button class="btn small danger" data-del="' + esc(l.id) + '">' + esc(t('l.delete')) + '</button></div></div>';
+        return '<div class="card click" data-ml="' + esc(l.id) + '"><div class="spread"><b>' + esc(l.title) + '</b><span class="badge ' + (l.status === 'AVAILABLE' ? '' : 'off') + '">' + esc(l.status) + '</span></div><div class="muted">' + esc(cityLabel(l.city)) + ' · ' + esc(money(l.price_cents)) + ' / ' + esc(t('per.' + l.period)) + (postedDate(l.created_at) ? ' · ' + postedDate(l.created_at) : '') + '</div><div class="row" style="margin-top:8px"><button class="btn small danger" data-del="' + esc(l.id) + '">' + esc(t('l.delete')) + '</button></div></div>';
       }).join('') : '<p class="muted">' + esc(t('p.none')) + '</p>') +
       '<h2>' + esc(t('p.blocked')) + '</h2>' + ((blocked && blocked.length) ? blocked.map(function (u) {
         return '<div class="card spread"><span>' + esc(u.full_name) + '</span><button class="btn small ghost" data-ub="' + esc(u.user_id) + '">' + esc(t('p.unblock')) + '</button></div>';
@@ -90,7 +90,7 @@
     var head = '<div class="chips">' + tabs.map(function (x) {
       return '<button class="chip ' + (tab === x[0] ? 'on' : '') + '" data-t="' + x[0] + '">' + esc(t(x[1])) + '</button>';
     }).join('') + '</div>';
-    page('profile', t('p.admin'), head + '<div id="ab"><p class="muted">' + esc(t('loading')) + '</p></div>', true);
+    page('profile', t('p.admin'), head + '<div id="ab">' + spinnerHtml() + '</div>', true);
     $$('[data-t]').forEach(function (b) { b.addEventListener('click', function () { go('admin', { tab: b.getAttribute('data-t') }, true); }); });
     var box = $('#ab');
     var none = '<p class="muted">' + esc(t('a.none')) + '</p>';
@@ -214,3 +214,4 @@
 
   boot();
 // END OF FILE app_views2.js
+          
