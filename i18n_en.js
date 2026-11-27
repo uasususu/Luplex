@@ -53,6 +53,11 @@ I18N.en = {
       'err.LISTING_HAS_ACTIVE_BOOKING': 'You can delete this listing after the current booking is finished.',
       'l.posted': 'Posted', 'empty.title': 'Oops, no matches were found', 'empty.sub': 'Try different words or clear your filters.',
       'empty.none': 'No listings yet', 'empty.noneSub': 'Be the first to list a property!', 'empty.clear': 'Clear filters',
+      'l.featured': 'Featured', 'f.title': 'Feature this listing', 'f.desc': 'Your listing appears at the top of Explore, however old it is. {p} per week.',
+      'f.weeks': 'Number of weeks', 'f.total': 'Total: {t}', 'f.go': 'Feature now', 'f.until': 'Featured until {d}',
+      'f.ask': 'Pay {t} from your wallet to feature this listing for {n} week(s)?', 'f.done': 'Your listing is featured!',
+      'p.theme': 'Appearance', 'p.light': 'Light mode', 'p.dark': 'Dark mode', 'kind.FEATURED_FEE': 'Featured listing',
+      'err.FEATURING_NOT_AVAILABLE': 'Featuring is not available right now.', 'err.INVALID_WEEKS': 'Choose between 1 and 12 weeks.',
       'setup': 'Setup needed: open config.js and paste your Supabase project URL and public key.',
       'err.generic': 'Something went wrong. Please try again.',
       'err.PHOTO_TOO_LARGE': 'A photo is still too large for the server. Try a smaller one.',
@@ -76,3 +81,4 @@ I18N.en = {
       'err.INVALID_SPLIT': 'Amount must be between 0 and the held amount.', 'err.BOOKING_NOT_DISPUTED': 'This booking is not in dispute.'
 };
 // END OF FILE i18n_en.js
+            
