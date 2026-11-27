@@ -2,7 +2,7 @@
 
   /* ---------- Listing detail ---------- */
   async function viewListing(p) {
-    page('explore', '', '<p class="muted">' + esc(t('loading')) + '</p>', true);
+    page('explore', '', spinnerHtml(), true);
     var l = state.cache[p.id];
     if (!l) {
       var rows = await guard(function () { return fetchListings({ city: '', period: '', min: null, max: null }); });
@@ -46,6 +46,7 @@
       '<div class="imgwrap"><div class="gallery">' + gallery + '</div>' + detailHeart + '</div>' +
       '<div class="spread" style="margin-top:10px"><span class="price">' + esc(money(l.price_cents)) + ' / ' + esc(t('per.' + l.period)) + '</span><span class="muted">' + esc(cityLabel(l.city)) + '</span></div>' +
       '<p class="muted">' + esc(t('l.host')) + ': ' + esc(l.host_name) + (l.host_verified ? '<span class="badge">' + esc(t('l.verified')) + '</span>' : '') + '</p>' +
+      (postedDate(l.created_at) ? '<p class="muted dt">' + icon('calendar') + esc(t('l.posted')) + ' ' + postedDate(l.created_at) + '</p>' : '') +
       '<p class="pre" style="margin:12px 0">' + esc(l.description) + '</p>' + contactHtml + bookHtml +
       (!mine ? '<div class="row" style="margin-top:10px"><button class="btn small ghost" id="rep">' + esc(t('l.report')) + '</button><button class="btn small danger" id="blk">' + esc(t('l.block')) + '</button></div>' : '') +
       '<h2>' + esc(t('l.reviews')) + '</h2>' + revHtml, true);
@@ -182,7 +183,7 @@
 
   /* ---------- Bookings ---------- */
   async function viewBookings() {
-    page('bookings', t('nav.bookings'), '<p class="muted">' + esc(t('loading')) + '</p>');
+    page('bookings', t('nav.bookings'), spinnerHtml());
     var rows = await guard(function () { return rpc('my_bookings'); });
     if (rows === null) { return; }
     var html = rows.length ? rows.map(function (b) {
@@ -230,7 +231,7 @@
 
   /* ---------- Chat ---------- */
   function viewChat(p) {
-    page('bookings', p.title, '<div id="msgs"><p class="muted">' + esc(t('loading')) + '</p></div>' +
+    page('bookings', p.title, '<div id="msgs">' + spinnerHtml() + '</div>' +
       '<div id="composer"></div>', true);
     var open = p.open;
     async function load() {
@@ -281,3 +282,4 @@
     });
   }
 // END OF FILE app_views1.js
+          
