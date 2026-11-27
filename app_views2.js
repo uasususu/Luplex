@@ -36,6 +36,7 @@
       '<div class="card"><b>' + esc(pr.full_name) + '</b><div class="muted">' + esc(pr.email) + '</div><div class="muted" dir="ltr">' + esc(pr.phone || '') + '</div>' +
       (strikes ? '<p class="bad">' + esc(t('p.strikes', { n: strikes })) + '</p>' : '') + '</div>' +
       '<div class="card spread"><span>' + esc(t('p.language')) + '</span><button class="btn small ghost" id="lang">' + (lang === 'ar' ? 'English' : 'العربية') + '</button></div>' +
+      '<div class="card spread"><span>' + esc(t('p.theme')) + '</span>' + themeButtonHtml('themeBtn') + '</div>' +
       '<h2>' + esc(t('p.myListings')) + '</h2>' + (listings.length ? listings.map(function (l) {
         return '<div class="card click" data-ml="' + esc(l.id) + '"><div class="spread"><b>' + esc(l.title) + '</b><span class="badge ' + (l.status === 'AVAILABLE' ? '' : 'off') + '">' + esc(l.status) + '</span></div><div class="muted">' + esc(cityLabel(l.city)) + ' · ' + esc(money(l.price_cents)) + ' / ' + esc(t('per.' + l.period)) + (postedDate(l.created_at) ? ' · ' + postedDate(l.created_at) : '') + '</div><div class="row" style="margin-top:8px"><button class="btn small danger" data-del="' + esc(l.id) + '">' + esc(t('l.delete')) + '</button></div></div>';
       }).join('') : '<p class="muted">' + esc(t('p.none')) + '</p>') +
@@ -46,6 +47,7 @@
       '<button class="btn danger" id="del" style="width:100%">' + esc(t('p.delete')) + '</button><div class="sp"></div>' +
       '<button class="btn ghost" id="out" style="width:100%">' + esc(t('p.logout')) + '</button>');
     $('#lang').addEventListener('click', function () { setLang(lang === 'ar' ? 'en' : 'ar'); viewProfile(); });
+    $('#themeBtn').addEventListener('click', function () { toggleTheme(); viewProfile(); });
     $$('[data-ml]').forEach(function (c) {
       c.addEventListener('click', async function () {
         try {
@@ -214,4 +216,4 @@
 
   boot();
 // END OF FILE app_views2.js
-          
+         
