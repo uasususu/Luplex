@@ -66,6 +66,16 @@ nav button.on{color:var(--accent2);font-weight:700}
 .heart.on{color:var(--danger)}
 .heart.on .ic{fill:currentColor}
 [dir=rtl] .flip{transform:scaleX(-1)}
+.spin-wrap{display:flex;justify-content:center;padding:56px 0}
+.spinner{width:48px;height:48px;border-radius:50%;border:5px solid var(--border);border-top-color:var(--accent);border-right-color:var(--accent2);animation:spin .85s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation-duration:2.4s}}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 12px 8px;gap:8px}
+.empty-art{width:min(260px,70%);height:auto;margin-bottom:6px}
+.empty h2{margin:6px 0 0;font-size:20px}
+.empty .btn{margin-top:10px}
+.dt{display:inline-flex;align-items:center}
+.dt .ic{width:14px;height:14px;margin-inline-end:4px}
 .good{color:var(--accent)}
 </style>
 </head>
