@@ -309,7 +309,8 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
     return '<div class="card click listing" data-id="' + esc(l.id) + '"><div class="imgwrap">' + img + heart + '</div>' +
       '<div class="spread"><b>' + esc(l.title) + '</b><span class="price">' + esc(money(l.price_cents)) + ' / ' + esc(t('per.' + l.period)) + '</span></div>' +
       '<div class="muted">' + esc(cityLabel(l.city)) + ' · ' + esc(rating) + (l.status === 'RENTED' ? ' · ' + esc(t('l.rented')) : '') + '</div>' +
-      '<div class="muted">' + esc(t('l.host')) + ': ' + esc(l.host_name) + (l.host_verified ? '<span class="badge">' + esc(t('l.verified')) + '</span>' : '') + '</div></div>';
+      '<div class="spread"><span class="muted">' + esc(t('l.host')) + ': ' + esc(l.host_name) + (l.host_verified ? '<span class="badge">' + esc(t('l.verified')) + '</span>' : '') + '</span>' +
+      (postedDate(l.created_at) ? '<span class="muted dt">' + icon('calendar') + postedDate(l.created_at) + '</span>' : '') + '</div></div>';
   }
 
   async function viewExplore() {
@@ -317,7 +318,7 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
     page('explore', t('nav.explore'),
       '<div class="searchbar"><input id="q" type="search" placeholder="' + esc(t('explore.search')) + '" value="' + esc(f.search) + '"><button class="btn small" id="qgo">' + esc(t('explore.go')) + '</button></div>' +
       '<div class="chips" id="chips"></div><div class="chips" id="periods"></div><div id="range"></div>' +
-      '<div id="list" class="muted">' + esc(t('loading')) + '</div>' +
+      '<div id="list">' + spinnerHtml() + '</div>' +
       '<button class="fab" id="newl">' + esc(t('explore.list')) + '</button>');
 
     $('#newl').addEventListener('click', function () { go('create'); });
@@ -384,7 +385,10 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
         var el = $('#list');
         if (!el) { return; }
         el.className = '';
-        el.innerHTML = rows.length ? rows.map(cardHtml).join('') : '<p class="muted">' + esc(t('explore.none')) + '</p>';
+        var filtered = !!(f.search || f.city || f.period || f.min != null || f.max != null || f.liked);
+        el.innerHTML = rows.length ? rows.map(cardHtml).join('') : emptyHtml(filtered);
+        var cf = $('#clearf');
+        if (cf) { cf.addEventListener('click', function () { state.filters = { city: '', period: '', min: null, max: null, search: '', liked: false }; viewExplore(); }); }
         bindHearts(el);
         $$('.listing', el).forEach(function (c) {
           c.addEventListener('click', function () { go('listing', { id: c.getAttribute('data-id') }); });
@@ -393,4 +397,3 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
     }
   }
 // END OF FILE app_core.js
-
