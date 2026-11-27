@@ -14,7 +14,8 @@
     var reviews = [];
     try { contact = await rpc('host_contact', { p_listing_id: l.id }); } catch (e) { contact = []; }
     try { reviews = await rpc('list_reviews', { p_listing_id: l.id }); } catch (e) { reviews = []; }
-    var gallery = (l.images || []).map(function (u) { return '<img src="' + esc(u) + '" onerror="this.style.display=\'none\'">'; }).join('');
+    var fprice = null;
+    if (mine) { try { fprice = await rpc('featured_week_price'); } catch (e) { fprice = null; } }
     var contactHtml = contact && contact.length
       ? '<div class="card"><b>' + esc(t('l.contact')) + '</b><p>' + esc(contact[0].full_name) + '</p><p>' + esc(contact[0].email) + '</p><p dir="ltr">' + esc(contact[0].phone) + '</p></div>'
       : '<div class="card muted"><b>' + esc(t('l.contact')) + '</b><br>' + esc(t('l.contactHidden')) + '</div>';
@@ -26,7 +27,7 @@
 
     var bookHtml = '';
     if (mine) {
-      bookHtml = '<div class="card muted">' + esc(t('l.own')) + '</div>' +
+      bookHtml = '<div class="card muted">' + esc(t('l.own')) + '</div>' + featureHtml(l, fprice) +
         (l.status === 'RENTED' ? '<button class="btn warn" id="relist">' + esc(t('l.relist')) + '</button>' : '') +
         '<div class="sp"></div><button class="btn danger" id="dellist">' + esc(t('l.delete')) + '</button>';
     } else if (l.status === 'AVAILABLE') {
@@ -43,7 +44,7 @@
 
     var detailHeart = (typeof l.liked === 'boolean') ? '<button class="heart ' + (l.liked ? 'on' : '') + '" data-like="' + esc(l.id) + '">' + icon('heart') + '</button>' : '';
     page('explore', l.title,
-      '<div class="imgwrap"><div class="gallery">' + gallery + '</div>' + detailHeart + '</div>' +
+      '<div class="imgwrap tall">' + slidesHtml(l.images, true) + detailHeart + '</div>' +
       '<div class="spread" style="margin-top:10px"><span class="price">' + esc(money(l.price_cents)) + ' / ' + esc(t('per.' + l.period)) + '</span><span class="muted">' + esc(cityLabel(l.city)) + '</span></div>' +
       '<p class="muted">' + esc(t('l.host')) + ': ' + esc(l.host_name) + (l.host_verified ? '<span class="badge">' + esc(t('l.verified')) + '</span>' : '') + '</p>' +
       (postedDate(l.created_at) ? '<p class="muted dt">' + icon('calendar') + esc(t('l.posted')) + ' ' + postedDate(l.created_at) + '</p>' : '') +
@@ -65,6 +66,8 @@
       });
     }
     bindHearts(app);
+    bindSlides(app);
+    bindFeature(l, p, fprice);
     var dl = $('#dellist');
     if (dl) {
       dl.addEventListener('click', async function () {
@@ -282,4 +285,4 @@
     });
   }
 // END OF FILE app_views1.js
-          
+           
