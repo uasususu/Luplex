@@ -19,7 +19,9 @@ var ICONS = {
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
   send: '<path d="M4 12l16-8-6 16-3-6z"/>',
   shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
-  back: '<path d="M19 12H5M11 6l-6 6 6 6"/>'
+  back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+  moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
 };
 
 function icon(name, cls) {
@@ -38,7 +40,7 @@ var ICON_MAP = [
   ['[data-del]', 'trash'], ['[data-ub]', 'refresh']
 ];
 
-var EMPTY_SVG = '<svg class="empty-art" viewBox="0 0 300 232" aria-hidden="true"><rect x="26" y="52" width="248" height="124" rx="42" fill="#18243d"/><path d="M72 62a14 14 0 0 1 14-14h72l28 28v36M72 62v90a14 14 0 0 0 14 14h40" fill="none" stroke="#ff8a3d" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 30h24M58 12l12 12M76 6v22" fill="none" stroke="#ff8a3d" stroke-width="3" stroke-linecap="round"/><circle cx="152" cy="112" r="50" fill="#111b30" stroke="#ff8a3d" stroke-width="12"/><path d="M190 150l44 44" stroke="#ff8a3d" stroke-width="16" stroke-linecap="round"/><rect x="124" y="98" width="58" height="42" fill="#4fc4a4"/><rect x="153" y="98" width="29" height="42" fill="#8fe8cf"/><rect x="138" y="86" width="22" height="12" fill="#4fc4a4"/><rect x="141" y="89" width="14" height="6" fill="#0a9d83"/><g fill="#0a9d83"><rect x="130" y="106" width="8" height="8"/><rect x="141" y="106" width="8" height="8"/><rect x="159" y="106" width="8" height="8"/><rect x="170" y="106" width="8" height="8"/><rect x="130" y="124" width="8" height="16"/><rect x="168" y="124" width="10" height="16"/></g></svg>';
+var EMPTY_SVG = '<svg class="empty-art" viewBox="0 0 300 232" aria-hidden="true"><rect x="26" y="52" width="248" height="124" rx="42" style="fill:var(--card2)"/><path d="M72 62a14 14 0 0 1 14-14h72l28 28v36M72 62v90a14 14 0 0 0 14 14h40" fill="none" stroke="#ff8a3d" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 30h24M58 12l12 12M76 6v22" fill="none" stroke="#ff8a3d" stroke-width="3" stroke-linecap="round"/><circle cx="152" cy="112" r="50" style="fill:var(--card)" stroke="#ff8a3d" stroke-width="12"/><path d="M190 150l44 44" stroke="#ff8a3d" stroke-width="16" stroke-linecap="round"/><rect x="124" y="98" width="58" height="42" fill="#4fc4a4"/><rect x="153" y="98" width="29" height="42" fill="#8fe8cf"/><rect x="138" y="86" width="22" height="12" fill="#4fc4a4"/><rect x="141" y="89" width="14" height="6" fill="#0a9d83"/><g fill="#0a9d83"><rect x="130" y="106" width="8" height="8"/><rect x="141" y="106" width="8" height="8"/><rect x="159" y="106" width="8" height="8"/><rect x="170" y="106" width="8" height="8"/><rect x="130" y="124" width="8" height="16"/><rect x="168" y="124" width="10" height="16"/></g></svg>';
 
 function postedDate(v) {
   if (!v) { return ''; }
@@ -58,6 +60,100 @@ function emptyHtml(filtered) {
     (filtered ? '<button class="btn" id="clearf">' + esc(t('empty.clear')) + '</button>' : '') + '</div>';
 }
 
+function slidesHtml(images, withCount) {
+  var imgs = (images || []).filter(Boolean);
+  if (!imgs.length) { return ''; }
+  var html = '<div class="slides">' + imgs.map(function (u) {
+    return '<img loading="lazy" src="' + esc(u) + '" onerror="this.style.display=\'none\'">';
+  }).join('') + '</div>';
+  if (imgs.length > 1) {
+    html += '<div class="dots">' + imgs.map(function (u, i) { return '<span class="' + (i === 0 ? 'on' : '') + '"></span>'; }).join('') + '</div>';
+  }
+  if (withCount) { html += '<div class="count">1/' + imgs.length + '</div>'; }
+  return html;
+}
+
+function bindSlides(root) {
+  $$('.slides', root).forEach(function (s) {
+    if (s.getAttribute('data-sb')) { return; }
+    s.setAttribute('data-sb', '1');
+    var wrap = s.parentNode;
+    s.addEventListener('scroll', function () {
+      var i = Math.round(Math.abs(s.scrollLeft) / Math.max(1, s.clientWidth));
+      $$('.dots span', wrap).forEach(function (d, k) { d.className = k === i ? 'on' : ''; });
+      var c = $('.count', wrap);
+      if (c) { c.textContent = (i + 1) + '/' + s.children.length; }
+    });
+  });
+}
+
+function bindHearts(root) {
+  $$('[data-like]', root).forEach(function (b) {
+    if (b.getAttribute('data-bound')) { return; }
+    b.setAttribute('data-bound', '1');
+    b.addEventListener('click', async function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+      var id = b.getAttribute('data-like');
+      var res = await guard(function () { return rpc('toggle_like', { p_listing_id: id }); });
+      if (res === null) { return; }
+      b.classList.toggle('on', res === true);
+      if (state.cache[id]) { state.cache[id].liked = res === true; }
+      if (!res && state.filters.liked) {
+        var card = b.closest('.listing');
+        if (card) { card.remove(); }
+      }
+    });
+  });
+}
+
+function currentTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+
+function applyTheme(mode) {
+  document.documentElement.setAttribute('data-theme', mode);
+  var m = document.querySelector('meta[name="theme-color"]');
+  if (m) { m.setAttribute('content', mode === 'light' ? '#f4f6fb' : '#0b1220'); }
+}
+
+function toggleTheme() {
+  var next = currentTheme() === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('theme', next); } catch (e) { /* storage unavailable */ }
+  applyTheme(next);
+}
+
+function themeButtonHtml(id) {
+  var toLight = currentTheme() === 'dark';
+  return '<button class="btn small ghost" id="' + id + '">' + icon(toLight ? 'sun' : 'moon') + esc(t(toLight ? 'p.light' : 'p.dark')) + '</button>';
+}
+
+function featureHtml(l, price) {
+  if (price === null || price === undefined) { return ''; }
+  var until = l.featured_until ? '<p class="good dt">' + icon('star') + esc(t('f.until', { d: fmtDate(l.featured_until) })) + '</p>' : '';
+  if (l.status !== 'AVAILABLE') { return until ? '<div class="card">' + until + '</div>' : ''; }
+  var opts = [1, 2, 3, 4].map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+  return '<div class="card"><b>' + esc(t('f.title')) + '</b>' + until +
+    '<p class="muted">' + esc(t('f.desc', { p: money(price) })) + '</p>' +
+    '<label>' + esc(t('f.weeks')) + '</label><select id="fweeks">' + opts + '</select>' +
+    '<p class="muted" id="ftotal">' + esc(t('f.total', { t: money(price) })) + '</p>' +
+    '<button class="btn warn" id="fgo" style="width:100%">' + icon('star') + esc(t('f.go')) + '</button></div>';
+}
+
+function bindFeature(l, p, price) {
+  var sel = $('#fweeks'), go = $('#fgo');
+  if (!sel || !go) { return; }
+  sel.addEventListener('change', function () {
+    $('#ftotal').textContent = t('f.total', { t: money(price * parseInt(sel.value, 10)) });
+  });
+  go.addEventListener('click', async function () {
+    var n = parseInt(sel.value, 10);
+    if (!window.confirm(t('f.ask', { t: money(price * n), n: n }))) { return; }
+    var until = await guard(function () { return rpc('feature_listing', { p_listing_id: l.id, p_weeks: n }); });
+    if (until) { toast(t('f.done')); delete state.cache[l.id]; viewListing(p); }
+  });
+}
+
 function decorate() {
   ICON_MAP.forEach(function (m) {
     $$(m[0]).forEach(function (el) {
@@ -73,3 +169,4 @@ function decorate() {
   }
 }
 // END OF FILE app_icons.js
+                       
