@@ -137,26 +137,6 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { run(); } });
   }
 
-  function bindHearts(root) {
-    $$('[data-like]', root).forEach(function (b) {
-      if (b.getAttribute('data-bound')) { return; }
-      b.setAttribute('data-bound', '1');
-      b.addEventListener('click', async function (e) {
-        e.stopPropagation();
-        e.preventDefault();
-        var id = b.getAttribute('data-like');
-        var res = await guard(function () { return rpc('toggle_like', { p_listing_id: id }); });
-        if (res === null) { return; }
-        b.classList.toggle('on', res === true);
-        if (state.cache[id]) { state.cache[id].liked = res === true; }
-        if (!res && state.filters.liked) {
-          var card = b.closest('.listing');
-          if (card) { card.remove(); }
-        }
-      });
-    });
-  }
-
   function navHtml(active) {
     var items = [['explore', 'nav.explore', 'pin'], ['bookings', 'nav.bookings', 'calendar'], ['wallet', 'nav.wallet', 'wallet'], ['profile', 'nav.profile', 'user']];
     return '<nav>' + items.map(function (it) {
@@ -227,7 +207,7 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
   function viewAuth(mode) {
     var signup = mode === 'signup';
     app.innerHTML =
-      '<div class="top"><h1>' + esc(cfg.APP_NAME || 'Luplex') + '</h1><button class="btn small ghost" id="langBtn">' + (lang === 'ar' ? 'EN' : 'عربي') + '</button></div>' +
+      '<div class="top"><h1>' + esc(cfg.APP_NAME || 'Luplex') + '</h1><div class="row">' + themeButtonHtml('themeA') + '<button class="btn small ghost" id="langBtn">' + (lang === 'ar' ? 'EN' : 'عربي') + '</button></div></div>' +
       '<p class="muted">' + esc(t('auth.tagline')) + '</p>' +
       '<div class="card"><h2>' + esc(signup ? t('auth.signup') : t('auth.login')) + '</h2>' +
       (signup ? '<label>' + esc(t('auth.name')) + '</label><input id="name" autocomplete="name">' : '') +
@@ -237,6 +217,7 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
       '<div class="sp"></div><button class="btn" id="go" style="width:100%">' + esc(signup ? t('auth.signup') : t('auth.login')) + '</button>' +
       '<div class="sp"></div><button class="btn ghost" id="swap" style="width:100%">' + esc(signup ? t('auth.haveAccount') : t('auth.noAccount')) + '</button></div>';
     $('#langBtn').addEventListener('click', function () { setLang(lang === 'ar' ? 'en' : 'ar'); viewAuth(mode); });
+    $('#themeA').addEventListener('click', function () { toggleTheme(); viewAuth(mode); });
     $('#swap').addEventListener('click', function () { viewAuth(signup ? 'login' : 'signup'); });
     $('#go').addEventListener('click', async function () {
       var btn = $('#go');
@@ -280,6 +261,7 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
     var p = await state.sb.from('profiles').select('full_name,email,phone,created_at').eq('id', state.user.id).single();
     state.profile = p.data || { full_name: '', email: state.user.email };
     try { state.isAdmin = (await rpc('is_admin')) === true; } catch (e) { state.isAdmin = false; }
+    try { state.sb.functions.invoke('purge-photos').catch(function () { return null; }); } catch (e) { /* optional cleanup */ }
     go('explore', {}, true);
   }
 
@@ -303,10 +285,12 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
   }
 
   function cardHtml(l) {
-    var img = l.images && l.images[0] ? '<img loading="lazy" src="' + esc(l.images[0]) + '" onerror="this.style.display=\'none\'">' : '';
+    var img = slidesHtml(l.images, false);
+    var isFeat = !!l.featured_until && !l.featured_hidden;
+    var feat = isFeat ? '<span class="feat">' + icon('star') + esc(t('l.featured')) + '</span>' : '';
     var heart = (typeof l.liked === 'boolean') ? '<button class="heart ' + (l.liked ? 'on' : '') + '" data-like="' + esc(l.id) + '" aria-label="like">' + icon('heart') + '</button>' : '';
     var rating = l.avg_rating ? '★ ' + Number(l.avg_rating).toFixed(1) + ' (' + l.review_count + ')' : t('l.noRating');
-    return '<div class="card click listing" data-id="' + esc(l.id) + '"><div class="imgwrap">' + img + heart + '</div>' +
+    return '<div class="card click listing' + (isFeat ? ' featured' : '') + '" data-id="' + esc(l.id) + '"><div class="imgwrap">' + img + feat + heart + '</div>' +
       '<div class="spread"><b>' + esc(l.title) + '</b><span class="price">' + esc(money(l.price_cents)) + ' / ' + esc(t('per.' + l.period)) + '</span></div>' +
       '<div class="muted">' + esc(cityLabel(l.city)) + ' · ' + esc(rating) + (l.status === 'RENTED' ? ' · ' + esc(t('l.rented')) : '') + '</div>' +
       '<div class="spread"><span class="muted">' + esc(t('l.host')) + ': ' + esc(l.host_name) + (l.host_verified ? '<span class="badge">' + esc(t('l.verified')) + '</span>' : '') + '</span>' +
@@ -390,6 +374,7 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
         var cf = $('#clearf');
         if (cf) { cf.addEventListener('click', function () { state.filters = { city: '', period: '', min: null, max: null, search: '', liked: false }; viewExplore(); }); }
         bindHearts(el);
+        bindSlides(el);
         $$('.listing', el).forEach(function (c) {
           c.addEventListener('click', function () { go('listing', { id: c.getAttribute('data-id') }); });
         });
@@ -397,3 +382,4 @@ if (typeof window.decorate !== 'function') { window.decorate = function () {}; }
     }
   }
 // END OF FILE app_core.js
+                                                           
