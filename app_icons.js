@@ -130,10 +130,12 @@ function themeButtonHtml(id) {
 
 function featureHtml(l, price) {
   if (price === null || price === undefined) { return ''; }
-  var until = l.featured_until ? '<p class="good dt">' + icon('star') + esc(t('f.until', { d: fmtDate(l.featured_until) })) + '</p>' : '';
-  if (l.status !== 'AVAILABLE') { return until ? '<div class="card">' + until + '</div>' : ''; }
+  var active = !!l.featured_until;
+  var until = active ? '<p class="good dt">' + icon('star') + esc(t('f.until', { d: fmtDate(l.featured_until) })) + '</p>' : '';
+  var toggle = active ? '<label class="switch"><input type="checkbox" id="fvis"' + (l.featured_hidden ? '' : ' checked') + '><span>' + esc(t('f.showTag')) + '</span></label>' : '';
+  if (l.status !== 'AVAILABLE') { return (until || toggle) ? '<div class="card">' + until + toggle + '</div>' : ''; }
   var opts = [1, 2, 3, 4].map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
-  return '<div class="card"><b>' + esc(t('f.title')) + '</b>' + until +
+  return '<div class="card"><b>' + esc(t('f.title')) + '</b>' + until + toggle +
     '<p class="muted">' + esc(t('f.desc', { p: money(price) })) + '</p>' +
     '<label>' + esc(t('f.weeks')) + '</label><select id="fweeks">' + opts + '</select>' +
     '<p class="muted" id="ftotal">' + esc(t('f.total', { t: money(price) })) + '</p>' +
@@ -141,6 +143,16 @@ function featureHtml(l, price) {
 }
 
 function bindFeature(l, p, price) {
+  var vis = $('#fvis');
+  if (vis) {
+    vis.addEventListener('change', async function () {
+      var ok = await guard(function () { return rpcVoid('set_featured_visibility', { p_listing_id: l.id, p_visible: vis.checked }); });
+      if (ok) {
+        toast(t(vis.checked ? 'f.tagOn' : 'f.tagOff'));
+        if (state.cache[l.id]) { state.cache[l.id].featured_hidden = !vis.checked; }
+      } else { vis.checked = !vis.checked; }
+    });
+  }
   var sel = $('#fweeks'), go = $('#fgo');
   if (!sel || !go) { return; }
   sel.addEventListener('change', function () {
@@ -169,4 +181,4 @@ function decorate() {
   }
 }
 // END OF FILE app_icons.js
-                       
+                                          
