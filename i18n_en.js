@@ -58,6 +58,8 @@ I18N.en = {
       'f.ask': 'Pay {t} from your wallet to feature this listing for {n} week(s)?', 'f.done': 'Your listing is featured!',
       'p.theme': 'Appearance', 'p.light': 'Light mode', 'p.dark': 'Dark mode', 'kind.FEATURED_FEE': 'Featured listing',
       'err.FEATURING_NOT_AVAILABLE': 'Featuring is not available right now.', 'err.INVALID_WEEKS': 'Choose between 1 and 12 weeks.',
+      'f.showTag': 'Show the "Featured" tag to others', 'f.tagOn': 'Your listing now shows the Featured tag.', 'f.tagOff': 'Stealth on: still on top, but no tag is shown.',
+      'c.feeFree': 'This listing is free (your free one this month).', 'c.feePaid': 'This listing costs {f}, paid from your wallet (your free listing this month is already used).', 'c.feeAsk': 'Pay {f} from your wallet to publish this listing?',
       'setup': 'Setup needed: open config.js and paste your Supabase project URL and public key.',
       'err.generic': 'Something went wrong. Please try again.',
       'err.PHOTO_TOO_LARGE': 'A photo is still too large for the server. Try a smaller one.',
