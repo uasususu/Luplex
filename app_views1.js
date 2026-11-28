@@ -127,13 +127,20 @@
   function viewCreate() {
     var cityOptions = CITIES.map(function (c) { return '<option value="' + esc(c[0]) + '">' + esc(lang === 'ar' ? c[1] : c[0]) + '</option>'; }).join('');
     page('explore', t('explore.list'),
-      '<div class="card"><label>' + esc(t('c.title')) + '</label><input id="ctitle" maxlength="80">' +
+      '<div class="card"><div id="feeinfo" class="muted" style="margin-bottom:6px"></div><label>' + esc(t('c.title')) + '</label><input id="ctitle" maxlength="80">' +
       '<label>' + esc(t('c.city')) + '</label><select id="ccity">' + cityOptions + '</select>' +
       '<label>' + esc(t('c.desc')) + ' — <span id="wc">0</span> ' + esc(t('c.words')) + '</label><textarea id="cdesc"></textarea>' +
       '<label>' + esc(t('c.period')) + '</label><select id="cper"><option value="NIGHT">' + esc(t('tab.NIGHT')) + '</option><option value="MONTH">' + esc(t('tab.MONTH')) + '</option><option value="YEAR">' + esc(t('tab.YEAR')) + '</option></select>' +
       '<label>' + esc(t('c.price')) + '</label><input id="cprice" type="number" min="1" step="0.01" inputmode="decimal">' +
       '<label>' + esc(t('c.photos')) + '</label><input id="cphotos" type="file" accept="image/*" multiple><div class="thumbs" id="thumbs"></div>' +
       '<div class="sp"></div><button class="btn" id="cpub" style="width:100%">' + esc(t('c.publish')) + '</button><p class="muted" id="cstat"></p></div>', true);
+
+    var createFee = 0;
+    rpc('my_listing_fee').then(function (cents) {
+      createFee = Number(cents) || 0;
+      var box = $('#feeinfo');
+      if (box) { box.innerHTML = createFee > 0 ? '<b class="bad">' + esc(t('c.feePaid', { f: money(createFee) })) + '</b>' : '<b class="good">' + esc(t('c.feeFree')) + '</b>'; }
+    }).catch(function () { return null; });
 
     $('#cdesc').addEventListener('input', function () {
       var n = countWords($('#cdesc').value);
@@ -153,6 +160,7 @@
       if (countWords(desc) > 399) { toast(t('err.DESCRIPTION_TOO_LONG')); return; }
       if (files.length < 1) { toast(t('c.noPhoto')); return; }
       if (files.length > 11) { toast(t('c.maxPhotos')); return; }
+      if (createFee > 0 && !window.confirm(t('c.feeAsk', { f: money(createFee) }))) { return; }
       btn.disabled = true;
       try {
         var urls = [];
@@ -285,4 +293,4 @@
     });
   }
 // END OF FILE app_views1.js
-           
+       
